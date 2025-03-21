@@ -26,9 +26,9 @@ const InitialLayout = () => {
   });
 
   useEffect(() => {
-    SplashScreen.preventAutoHideAsync();
+    SplashScreen?.preventAutoHideAsync();
     if (fontsLoaded) {
-      SplashScreen.hideAsync();
+      SplashScreen?.hideAsync();
     }
   }, [fontsLoaded]);
   return <Slot />;
@@ -44,7 +44,7 @@ export default function RootLayout() {
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <ClerkLoaded>
-        <Slot />
+        <InitialLayout />
       </ClerkLoaded>
     </ClerkProvider>
   );
