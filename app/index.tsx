@@ -5,7 +5,7 @@ import { Pressable, Text, View } from "react-native";
 
 export default function Page() {
   const { user } = useUser();
-  const { isSignedIn, signOut } = useAuth();
+  const { isSignedIn } = useAuth();
 
   if (isSignedIn) {
     return <Redirect href={"/home"} />;
@@ -23,7 +23,6 @@ export default function Page() {
     >
       <SignedIn>
         <Text>Hello {user?.emailAddresses[0].emailAddress}</Text>
-        <Pressable>Logout</Pressable>
       </SignedIn>
       <SignedOut>
         <WelcomePage />
