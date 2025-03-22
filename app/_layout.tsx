@@ -1,6 +1,6 @@
 import { Slot, Stack } from "expo-router";
 import SplashScreen from "expo-splash-screen";
-import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
+import { ClerkProvider, ClerkLoaded, useAuth } from "@clerk/clerk-expo";
 import { tokenCache } from "@/utils/cache";
 import {
   useFonts,
@@ -13,6 +13,13 @@ import { LogBox } from "react-native";
 import "../global.css";
 
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+import { ConvexReactClient } from "convex/react";
+import { ConvexProviderWithClerk } from "convex/react-clerk";
+
+const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
+  unsavedChangesWarning: false,
+});
+
 if (!clerkPublishableKey) {
   throw new Error(
     "Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env"
@@ -46,7 +53,9 @@ export default function RootLayout() {
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <ClerkLoaded>
-        <InitialLayout />
+        <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+          <InitialLayout />
+        </ConvexProviderWithClerk>
       </ClerkLoaded>
     </ClerkProvider>
   );
