@@ -56,7 +56,7 @@ export default function Page() {
       <View>
         <Text>Don't have an account?</Text>
         <Link href="/sign-up">
-          <Text>Sign up</Text>
+          <Text className="">Sign up</Text>
         </Link>
       </View>
     </View>

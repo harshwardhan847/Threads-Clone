@@ -10,6 +10,8 @@ import {
 } from "@expo-google-fonts/dm-sans";
 import { useEffect } from "react";
 import { LogBox } from "react-native";
+import "../global.css";
+
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 if (!clerkPublishableKey) {
   throw new Error(

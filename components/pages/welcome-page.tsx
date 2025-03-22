@@ -7,7 +7,10 @@ type Props = {};
 const WelcomePage = (props: Props) => {
   return (
     <View>
-      <Text style={{ fontSize: 20, fontWeight: 600, textAlign: "center" }}>
+      <Text
+        className="text-red-600"
+        style={{ fontSize: 20, fontWeight: 600, textAlign: "center" }}
+      >
         Welcome
       </Text>
       <Link href="/(auth)/sign-in">
