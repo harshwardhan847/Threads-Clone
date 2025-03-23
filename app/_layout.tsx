@@ -1,6 +1,17 @@
-import { Slot, Stack, useRouter, useSegments } from "expo-router";
+import {
+  Slot,
+  Stack,
+  useNavigationContainerRef,
+  useRouter,
+  useSegments,
+} from "expo-router";
 import SplashScreen from "expo-splash-screen";
-import { ClerkProvider, ClerkLoaded, useAuth } from "@clerk/clerk-expo";
+import {
+  ClerkProvider,
+  ClerkLoaded,
+  useAuth,
+  useUser,
+} from "@clerk/clerk-expo";
 import { tokenCache } from "@/utils/cache";
 import {
   useFonts,
@@ -12,6 +23,8 @@ import { useEffect } from "react";
 import { LogBox } from "react-native";
 import "../global.css";
 
+import * as Sentry from "@sentry/react-native";
+import { isRunningInExpoGo } from "expo";
 const clerkPublishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
@@ -33,16 +46,57 @@ const InitialLayout = () => {
     DMSans_500Medium,
     DMSans_700Bold,
   });
+  // Construct a new integration instance. This is needed to communicate between the integration and React
+  const navigationIntegration = Sentry.reactNavigationIntegration({
+    enableTimeToInitialDisplay: !isRunningInExpoGo(),
+  });
+
+  Sentry.init({
+    dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+    debug: false, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
+    tracesSampleRate: 1.0, // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing. Adjusting this value in production.
+    integrations: [
+      // Pass integration
+      navigationIntegration,
+      Sentry.mobileReplayIntegration(),
+    ],
+    _experiments: {
+      replaysOnErrorSampleRate: 1.0,
+      replaysSessionSampleRate: 1.0,
+    },
+    profilesSampleRate: 1.0,
+    attachScreenshot: true,
+    enableNativeFramesTracking: !isRunningInExpoGo(), // Tracks slow and frozen frames in the application
+  });
 
   const { isLoaded, isSignedIn } = useAuth();
   const segment = useSegments();
   const router = useRouter();
+  const ref = useNavigationContainerRef();
+  const { user } = useUser();
+
+  useEffect(() => {
+    if (ref?.current) {
+      navigationIntegration.registerNavigationContainer(ref);
+    }
+  }, [ref]);
+
   useEffect(() => {
     SplashScreen?.preventAutoHideAsync();
     if (fontsLoaded) {
       SplashScreen?.hideAsync();
     }
   }, [fontsLoaded]);
+  useEffect(() => {
+    if (user) {
+      Sentry.setUser({
+        email: user.emailAddresses[0].emailAddress,
+        id: user.id,
+      });
+    } else {
+      Sentry.setUser(null);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -56,7 +110,7 @@ const InitialLayout = () => {
   return <Slot />;
 };
 
-export default function RootLayout() {
+function RootLayout() {
   const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
   if (!publishableKey) {
@@ -73,3 +127,4 @@ export default function RootLayout() {
     </ClerkProvider>
   );
 }
+export default Sentry.wrap(RootLayout);

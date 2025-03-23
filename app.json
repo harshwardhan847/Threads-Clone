@@ -35,6 +35,14 @@
           "backgroundColor": "#ffffff"
         }
       ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "harsh",
+          "project": "threads-clone",
+          "url": "https://sentry.io/"
+        }
+      ],
       "expo-font"
     ],
     "experiments": {
