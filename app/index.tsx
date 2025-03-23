@@ -8,7 +8,7 @@ export default function Page() {
   const { isSignedIn } = useAuth();
 
   if (isSignedIn) {
-    return <Redirect href={"/home"} />;
+    return <Redirect href={"/(auth)/(tabs)/feed"} />;
   }
 
   return (

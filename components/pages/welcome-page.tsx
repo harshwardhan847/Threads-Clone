@@ -1,11 +1,8 @@
 import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
 import React from "react";
-import { Link } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useOAuth } from "@clerk/clerk-expo";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 type Props = {};
 
 const WelcomePage = (props: Props) => {
@@ -15,9 +12,6 @@ const WelcomePage = (props: Props) => {
   const { startOAuthFlow: startGoogleOAuthFlow } = useOAuth({
     strategy: "oauth_google",
   });
-
-  const data = useQuery(api.users.getAllUsers);
-  console.log("🚀 ~ WelcomePage ~ data:", data);
 
   const handleFacebookLogin = async () => {
     try {
