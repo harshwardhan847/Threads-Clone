@@ -92,6 +92,7 @@ const Layout = (props: Props) => {
       <Tabs.Screen
         name="profile"
         options={{
+          headerShown: false,
           headerRight: ({}) => {
             return (
               <TouchableOpacity className="mr-4" onPress={() => signOut()}>
