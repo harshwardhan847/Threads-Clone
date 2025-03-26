@@ -27,6 +27,6 @@ export const Message = {
 };
 
 export default defineSchema({
-  users: defineTable(User),
+  users: defineTable(User).index("byClerkId", ["clerkId"]),
   messages: defineTable(Message),
 });

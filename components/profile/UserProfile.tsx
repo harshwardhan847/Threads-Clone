@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import ProfileTabs from "./ProfileTabs";
+import { Link } from "expo-router";
 
 type Props = {
   userId?: Id<"users">;
@@ -43,9 +44,14 @@ const UserProfile = ({ userId }: Props) => {
       <View className="flex-row items-center justify-evenly mt-4 gap-4">
         {isSelf && (
           <>
-            <TouchableOpacity className="border flex-1 p-4 items-center justify-center border-gray-400 rounded-md">
-              <Text className="text-center font-bold">Edit Profile</Text>
-            </TouchableOpacity>
+            <Link
+              href={`/(auth)/(modal)/edit-profile?userId=${profile?._id ? encodeURIComponent(profile?._id) : ""}&bioString=${profile?.bio ? encodeURIComponent(profile?.bio) : ""}&linkString=${profile?.websiteUrl ? encodeURIComponent(profile?.websiteUrl) : ""}&imageUrl=${profile?.imageUrl ? encodeURIComponent(profile?.imageUrl) : ""}`}
+              asChild
+            >
+              <TouchableOpacity className="border flex-1 p-4 items-center justify-center border-gray-400 rounded-md">
+                <Text className="text-center font-bold">Edit Profile</Text>
+              </TouchableOpacity>
+            </Link>
             <TouchableOpacity className="border flex-1 p-4 items-center justify-center border-gray-400 rounded-md">
               <Text className="text-center font-bold">Share Profile</Text>
             </TouchableOpacity>

@@ -31,6 +31,19 @@ export default function AuthRoutesLayout() {
           ),
         }}
       />
+      <Stack.Screen
+        name="(modal)/edit-profile"
+        options={{
+          presentation: "modal",
+
+          title: "Edit Profile",
+          headerLeft: () => (
+            <TouchableOpacity className="ml-2" onPress={() => router.dismiss()}>
+              <Text className="">Cancel</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Stack>
   );
 }
