@@ -4,7 +4,7 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-
+import * as ImagePicker from "expo-image-picker";
 type Props = {};
 
 const EditProfile = () => {
@@ -18,6 +18,8 @@ const EditProfile = () => {
   const [link, setLink] = useState(linkString);
   const updateUser = useMutation(api.users.updateUser);
   const router = useRouter();
+  const [selectedImage, setSelectedImage] =
+    useState<ImagePicker.ImagePickerAsset | null>(null);
   const onDone = async () => {
     await updateUser({
       _id: userId,
@@ -26,6 +28,16 @@ const EditProfile = () => {
       websiteUrl: link,
     });
     router.dismiss();
+  };
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      allowsEditing: true,
+      aspect: [1, 1],
+    });
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0]);
+    }
   };
   return (
     <View>
@@ -42,10 +54,19 @@ const EditProfile = () => {
           },
         }}
       ></Stack.Screen>
-      <Image
-        source={{ uri: imageUrl }}
-        className="w-28 self-center h-28 rounded-full object-cover"
-      />
+      <TouchableOpacity onPress={pickImage}>
+        {selectedImage ? (
+          <Image
+            source={{ uri: selectedImage.uri }}
+            className="w-28 self-center h-28 rounded-full object-cover"
+          />
+        ) : (
+          <Image
+            source={{ uri: imageUrl }}
+            className="w-28 self-center h-28 rounded-full object-cover"
+          />
+        )}
+      </TouchableOpacity>
       <View className="mb-4 border m-4 border-gray-500 p-2 rounded-md">
         <Text className="text-lg font-semibold">Bio</Text>
         <TextInput
