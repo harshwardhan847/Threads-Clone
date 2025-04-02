@@ -17,17 +17,47 @@ const EditProfile = () => {
   const [bio, setBio] = useState(bioString);
   const [link, setLink] = useState(linkString);
   const updateUser = useMutation(api.users.updateUser);
+  const generateUploadUrl = useMutation(api.users.generateUploadUrl);
   const router = useRouter();
   const [selectedImage, setSelectedImage] =
     useState<ImagePicker.ImagePickerAsset | null>(null);
   const onDone = async () => {
-    await updateUser({
+    let storageId = selectedImage ? await updateProfilePicture() : null;
+
+    const toUpdate: {
+      imageUrl?: Id<"_storage">;
+      bio?: string;
+      websiteUrl?: string;
+      pushToken?: string;
+      _id: Id<"users">;
+    } = {
       _id: userId,
       bio,
-      // imageUrl: image,
       websiteUrl: link,
-    });
+    };
+    if (selectedImage) {
+      toUpdate.imageUrl = storageId as Id<"_storage">;
+    }
+    await updateUser(toUpdate);
+
     router.dismiss();
+  };
+  const updateProfilePicture = async () => {
+    const uploadUrl = await generateUploadUrl();
+    if (!selectedImage) return;
+    const response = await fetch(selectedImage.uri);
+    const blob = await response.blob();
+    const result = await fetch(uploadUrl, {
+      method: "POST",
+      body: blob,
+      headers: {
+        "Content-type": selectedImage.mimeType!,
+      },
+    });
+    const { storageId } = await result.json();
+
+    console.log("🚀 ~ updateProfilePicture ~ storageId:", storageId);
+    return storageId;
   };
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
