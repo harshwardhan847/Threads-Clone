@@ -1,6 +1,7 @@
 import { Redirect, router, Stack } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 import { Text, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function AuthRoutesLayout() {
   const { isSignedIn } = useAuth();
@@ -26,7 +27,7 @@ export default function AuthRoutesLayout() {
           title: "New Thread",
           headerRight: () => (
             <TouchableOpacity className="mr-2" onPress={() => router.back()}>
-              <Text className="text-blue-500">Cancel</Text>
+              <Ionicons name="menu" size={20} />
             </TouchableOpacity>
           ),
         }}
