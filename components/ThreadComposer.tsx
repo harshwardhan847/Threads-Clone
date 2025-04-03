@@ -6,6 +6,7 @@ import {
   TextInput,
   InputAccessoryView,
   Alert,
+  ScrollView,
 } from "react-native";
 import React, { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
@@ -14,6 +15,7 @@ import useUserProfile from "@/hooks/useUserProfile";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 
 type Props = {
   isPreview?: boolean;
@@ -25,16 +27,58 @@ const ThreadComposer = ({ isPreview, isReply, threadId }: Props) => {
   const router = useRouter();
   const [content, setContent] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
-  const [mediaFiles, setMediaFiles] = useState<string[]>([]);
+  const [mediaFiles, setMediaFiles] = useState<ImagePicker.ImagePickerAsset[]>(
+    []
+  );
   const INPUT_ACCESSORY_VIEW_ID = "INPUT_ACCESSORY_VIEW_ID";
 
   const { userProfile } = useUserProfile();
   const addThreadMessage = useMutation(api.messages.addThreadMessage);
+  const generateUploadUrl = useMutation(api.messages.generateUploadUrl);
 
+  const uploadMediaFile = async (image: ImagePicker.ImagePickerAsset) => {
+    if (!image) return;
+    const uploadUrl = await generateUploadUrl();
+    const response = await fetch(image.uri);
+    const blob = await response.blob();
+    const result = await fetch(uploadUrl, {
+      method: "POST",
+      body: blob,
+      headers: {
+        "Content-type": image.mimeType!,
+      },
+    });
+    const { storageId } = await result.json();
+
+    console.log("🚀 ~ updateProfilePicture ~ storageId:", storageId);
+    return storageId;
+  };
+  const selectImage = async (type: "library" | "camera") => {
+    const options: ImagePicker.ImagePickerOptions = {
+      mediaTypes: "images",
+      allowsEditing: true,
+      aspect: [9, 16],
+    };
+    let result;
+    if (type === "library") {
+      result = await ImagePicker.launchImageLibraryAsync(options);
+    } else {
+      result = await ImagePicker.launchCameraAsync(options);
+    }
+    if (!result.canceled) {
+      setMediaFiles([result.assets[0], ...mediaFiles]);
+    }
+  };
   const handleSubmit = async () => {
+    const mediaIds = await Promise.all(
+      mediaFiles.map((file) => uploadMediaFile(file))
+    );
+    console.log("🚀 ~ handleSubmit ~ mediaIds:", mediaIds);
+
     await addThreadMessage({
       content,
       threadId,
+      mediaFiles: mediaIds,
     });
 
     removeThread();
@@ -97,13 +141,41 @@ const ThreadComposer = ({ isPreview, isReply, threadId }: Props) => {
             autoFocus={!isPreview}
             inputAccessoryViewID={INPUT_ACCESSORY_VIEW_ID}
           />
+          {mediaFiles?.length > 0 && (
+            <ScrollView horizontal className="pt-8">
+              {mediaFiles.map((item, index) => (
+                <View
+                  key={index}
+                  className="min-h-40 relative aspect-[12/16] mr-4"
+                >
+                  <Image
+                    source={{ uri: item.uri }}
+                    className=" w-full h-full object-cover rounded-lg"
+                  />
+                  <TouchableOpacity
+                    className="absolute top-0 right-0  m-1 bg-black/40 rounded-md"
+                    onPress={() =>
+                      setMediaFiles(mediaFiles?.filter((_, i) => i !== index))
+                    }
+                  >
+                    <Ionicons
+                      name="close"
+                      size={15}
+                      color={"#fff"}
+                      className="p-1"
+                    />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+          )}
 
           {/* // TODO: Make all these icons working */}
           <View className="mt-4 flex-row gap-2">
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => selectImage("library")}>
               <Ionicons name="image-outline" size={25} color={"#1119"} />
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => selectImage("camera")}>
               <Ionicons name="camera-outline" size={25} color={"#1119"} />
             </TouchableOpacity>
             <TouchableOpacity className="flex items-center justify-center">

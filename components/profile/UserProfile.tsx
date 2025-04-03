@@ -28,6 +28,7 @@ const UserProfile = ({ userId }: Props) => {
           <Text className="text-base text-gray-500">@{profile?.username}</Text>
         </View>
         {/* //TODO: Add Fallback image for profile  */}
+
         <Image
           source={{ uri: profile?.imageUrl ?? "" }}
           className="w-16 h-16 rounded-full object-cover"
