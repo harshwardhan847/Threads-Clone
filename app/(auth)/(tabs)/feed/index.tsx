@@ -1,12 +1,4 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  RefreshControl,
-  Image,
-  Animated,
-} from "react-native";
+import { View, RefreshControl, Image } from "react-native";
 import React, { useState } from "react";
 import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -18,24 +10,64 @@ import { Ionicons } from "@expo/vector-icons";
 import ThreadComposer from "@/components/ThreadComposer";
 import Thread from "@/components/Thread";
 import { Doc } from "@/convex/_generated/dataModel";
+import { useNavigation } from "expo-router";
+import Animated, {
+  runOnJS,
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from "react-native-reanimated";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useIsFocused } from "@react-navigation/native";
 type Props = {};
 
 const Feed = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0); // New state to trigger refresh
+
   const { bottom } = useSafeAreaInsets();
-  const { results, status, loadMore, isLoading } = usePaginatedQuery(
+  const { results, status, loadMore } = usePaginatedQuery(
     api.messages.getThreads,
-    {},
+    { refreshKey },
     { initialNumItems: 5 }
   );
+
+  //Animation
+  const navigation = useNavigation();
+  const scrollOffset = useSharedValue(0);
+  const tabBarHeight = useBottomTabBarHeight();
+  const isFocused = useIsFocused();
+
+  const updateTabBar = () => {
+    let newMarginBottom = 0;
+    if (scrollOffset.value >= 0 && scrollOffset.value <= tabBarHeight) {
+      newMarginBottom = -scrollOffset.value;
+    } else if (scrollOffset.value > tabBarHeight) {
+      newMarginBottom = -tabBarHeight;
+    }
+    navigation.setOptions({
+      tabBarStyle: {
+        marginBottom: newMarginBottom,
+      },
+    });
+  };
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      if (isFocused) {
+        scrollOffset.value = event.contentOffset.y;
+        runOnJS(updateTabBar)();
+      }
+    },
+  });
+
   const onLoadMore = () => {
     loadMore(5);
   };
   const onRefresh = () => {
     setRefreshing(true);
+    setRefreshKey((prev) => prev + 1);
     setTimeout(() => {
       setRefreshing(false);
-    }, 2000);
+    }, 500);
   };
   if (status === "LoadingFirstPage") {
     return (
@@ -65,7 +97,9 @@ const Feed = (props: Props) => {
   }
   return (
     <SafeAreaView style={{ paddingBottom: -bottom }} className="flex-1">
-      <FlatList
+      <Animated.FlatList
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
         data={results}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (

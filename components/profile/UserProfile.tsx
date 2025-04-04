@@ -15,7 +15,6 @@ const UserProfile = ({ userId }: Props) => {
   const profile = useQuery(api.users.getUserById, {
     userId: userId as Id<"users">,
   });
-  console.log("🚀 ~ UserProfile ~ profile:", profile);
   const { userProfile } = useUserProfile();
   const isSelf = userProfile?._id === userId;
   return (

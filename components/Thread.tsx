@@ -2,6 +2,7 @@ import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { Ionicons } from "@expo/vector-icons";
+import { ScrollView } from "react-native";
 
 type Props = {
   thread: Doc<"messages"> & {
@@ -34,6 +35,22 @@ const Thread = ({ thread }: Props) => {
           />
         </View>
         <Text className="text-lg mb-0">{thread.content}</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className=""
+        >
+          {thread.mediaFiles?.map((imageUrl, index) => (
+            <TouchableOpacity key={index} className="">
+              <View className="h-48 mb-2 bg-gray-200 overflow-hidden rounded-lg shadow-sm relative aspect-square mr-4">
+                <Image
+                  source={{ uri: imageUrl }}
+                  className="object-cover w-full h-full "
+                />
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
         {/* Actions */}
         <View className="flex-row gap-4 items-center justify-start mt-4">
           <TouchableOpacity className="flex-row gap-2 items-center justify-start">

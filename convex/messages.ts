@@ -32,6 +32,7 @@ export const getThreads = query({
   args: {
     paginationOpts: paginationOptsValidator,
     userId: v.optional(v.id("users")),
+    refreshKey: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     let threads;
@@ -48,15 +49,17 @@ export const getThreads = query({
         .order("desc")
         .paginate(args.paginationOpts);
     }
-    const messageWithCreator = await Promise.all(
+    const messageWithCreatorAndImages = await Promise.all(
       threads.page.map(async (thread) => {
         const creator = await getMessageCreator(ctx, thread.userId);
-        return { ...thread, creator };
+        const mediaUrls = await getMediaUrls(ctx, thread.mediaFiles);
+
+        return { ...thread, creator, mediaFiles: mediaUrls };
       })
     );
     return {
       ...threads,
-      page: messageWithCreator,
+      page: messageWithCreatorAndImages,
     };
   },
 });
@@ -69,6 +72,25 @@ const getMessageCreator = async (ctx: QueryCtx, userId: Id<"users">) => {
   }
   const imageUrl = await ctx.storage.getUrl(user.imageUrl as Id<"_storage">);
   return { ...user, imageUrl };
+};
+
+const getMediaUrls = async (
+  ctx: QueryCtx,
+  mediaFiles?: string[] | undefined
+) => {
+  if (!mediaFiles || mediaFiles.length === 0) {
+    return [];
+  }
+  const urlPromises = mediaFiles?.map((file) =>
+    ctx.storage.getUrl(file as Id<"_storage">)
+  );
+  const result = await Promise.allSettled(urlPromises);
+  return result
+    ?.filter(
+      (result): result is PromiseFulfilledResult<string> =>
+        result.status === "fulfilled"
+    )
+    .map((result) => result.value);
 };
 
 export const generateUploadUrl = mutation({
