@@ -112,7 +112,24 @@ const ThreadComposer = ({ isPreview, isReply, threadId }: Props) => {
     ]);
   };
   return (
-    <View>
+    <TouchableOpacity
+      onPress={() => {
+        if (isPreview) {
+          router.push("/(auth)/(modal)/create");
+        }
+      }}
+      disabled={!isPreview}
+      style={
+        isPreview && {
+          top: 0,
+          left: 0,
+          right: 0,
+          flex: 1,
+          zIndex: 1000,
+          pointerEvents: "box-only",
+        }
+      }
+    >
       <Stack.Screen
         options={{
           headerLeft: () => (
@@ -122,7 +139,9 @@ const ThreadComposer = ({ isPreview, isReply, threadId }: Props) => {
           ),
         }}
       />
-      <View className="flex-row items-center gap-4 mb-5 p-4 border-b border-gray-300">
+      <View
+        className={`flex-row items-center gap-4 p-4 border-b border-gray-300 ${!isPreview && "mb-5"}`}
+      >
         {/*// TODO: Add fallback image url */}
         <Image
           source={{ uri: userProfile?.imageUrl ?? "" }}
@@ -188,14 +207,16 @@ const ThreadComposer = ({ isPreview, isReply, threadId }: Props) => {
             </TouchableOpacity>
           </View>
         </View>
-        <TouchableOpacity className="self-start" onPress={removeThread}>
-          <Ionicons
-            name="close-outline"
-            className=""
-            color={"#11195"}
-            size={25}
-          />
-        </TouchableOpacity>
+        {!isPreview && (
+          <TouchableOpacity className="self-start" onPress={removeThread}>
+            <Ionicons
+              name="close-outline"
+              className=""
+              color={"#11195"}
+              size={25}
+            />
+          </TouchableOpacity>
+        )}
       </View>
       <InputAccessoryView nativeID={INPUT_ACCESSORY_VIEW_ID}>
         <View className="flex-row items-center p-4 gap-4 pl-16">
@@ -212,7 +233,7 @@ const ThreadComposer = ({ isPreview, isReply, threadId }: Props) => {
           </TouchableOpacity>
         </View>
       </InputAccessoryView>
-    </View>
+    </TouchableOpacity>
   );
 };
 
