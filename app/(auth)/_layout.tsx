@@ -33,6 +33,28 @@ export default function AuthRoutesLayout() {
         }}
       />
       <Stack.Screen
+        name="(modal)/image/[url]"
+        options={{
+          presentation: "fullScreenModal",
+          title: "",
+          headerStyle: { backgroundColor: "black" },
+          headerRight: () => (
+            <TouchableOpacity className="mr-2" onPress={() => router.back()}>
+              <Ionicons
+                name="ellipsis-horizontal-circle"
+                color={"white"}
+                size={30}
+              />
+            </TouchableOpacity>
+          ),
+          headerLeft: () => (
+            <TouchableOpacity className="mr-2" onPress={() => router.back()}>
+              <Ionicons name="close" color={"white"} size={30} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
         name="(modal)/edit-profile"
         options={{
           presentation: "modal",

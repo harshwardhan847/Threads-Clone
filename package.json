@@ -18,9 +18,11 @@
     "@clerk/clerk-expo": "^2.6.1",
     "@expo-google-fonts/dm-sans": "^0.2.3",
     "@expo/vector-icons": "^14.0.2",
+    "@likashefqet/react-native-image-zoom": "^4.3.0",
     "@react-native-vector-icons/common": "^11.0.0",
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
+    "@sentry/react-native": "~6.3.0",
     "convex": "^1.21.0",
     "expo": "~52.0.18",
     "expo-blur": "~14.0.1",
@@ -28,6 +30,7 @@
     "expo-dev-client": "^5.0.6",
     "expo-font": "~13.0.1",
     "expo-haptics": "~14.0.1",
+    "expo-image-picker": "~16.0.6",
     "expo-linking": "~7.0.3",
     "expo-router": "4.0.11",
     "expo-secure-store": "^14.0.0",
@@ -46,9 +49,7 @@
     "react-native-screens": "~4.1.0",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
-    "tailwindcss": "^3.4.17",
-    "@sentry/react-native": "~6.3.0",
-    "expo-image-picker": "~16.0.6"
+    "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

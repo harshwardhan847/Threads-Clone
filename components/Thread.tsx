@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ScrollView } from "react-native";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Link } from "expo-router";
 
 type Props = {
   thread: Doc<"messages"> & {
@@ -45,14 +46,19 @@ const Thread = ({ thread }: Props) => {
           className=""
         >
           {thread.mediaFiles?.map((imageUrl, index) => (
-            <TouchableOpacity key={index} className="">
-              <View className="h-48 mb-2 bg-gray-200 overflow-hidden rounded-lg shadow-sm relative aspect-square mr-4">
+            <Link
+              href={`/(auth)/(modal)/image/${encodeURIComponent(imageUrl)}`}
+              asChild
+              key={index}
+              className=""
+            >
+              <TouchableOpacity className="h-48 mb-2 cursor-pointer bg-gray-200 overflow-hidden rounded-lg shadow-sm relative aspect-square mr-4">
                 <Image
                   source={{ uri: imageUrl }}
                   className="object-cover w-full h-full "
                 />
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </Link>
           ))}
         </ScrollView>
         {/* Actions */}
