@@ -64,6 +64,20 @@ export const getThreads = query({
   },
 });
 
+// TODO: Rather than simply incrementing like count add user id to render liked list
+export const likeThread = mutation({
+  args: {
+    threadId: v.id("messages"),
+  },
+  handler: async (ctx, args) => {
+    await getCurrentUserOrThrow(ctx);
+    const message = await ctx.db.get(args.threadId);
+    await ctx.db.patch(args.threadId, {
+      likeCount: (message?.likeCount ?? 0) + 1,
+    });
+  },
+});
+
 const getMessageCreator = async (ctx: QueryCtx, userId: Id<"users">) => {
   const user = await ctx.db.get(userId);
 

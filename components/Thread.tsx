@@ -3,6 +3,8 @@ import React from "react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView } from "react-native";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 type Props = {
   thread: Doc<"messages"> & {
@@ -11,6 +13,8 @@ type Props = {
 };
 
 const Thread = ({ thread }: Props) => {
+  const likeThread = useMutation(api.messages.likeThread);
+
   return (
     <View className="p-4 flex-row">
       <Image
@@ -53,7 +57,11 @@ const Thread = ({ thread }: Props) => {
         </ScrollView>
         {/* Actions */}
         <View className="flex-row gap-4 items-center justify-start mt-4">
-          <TouchableOpacity className="flex-row gap-2 items-center justify-start">
+          {/* //TODO: user can only like once and heart red on like */}
+          <TouchableOpacity
+            onPress={() => likeThread({ threadId: thread?._id })}
+            className="flex-row gap-2 items-center justify-start"
+          >
             <Ionicons name="heart-outline" size={25} />
             <Text className="text-lg">{thread?.likeCount}</Text>
           </TouchableOpacity>
