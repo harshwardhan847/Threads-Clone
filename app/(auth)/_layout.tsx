@@ -62,7 +62,20 @@ export default function AuthRoutesLayout() {
           title: "Edit Profile",
           headerLeft: () => (
             <TouchableOpacity className="ml-2" onPress={() => router.dismiss()}>
-              <Text className="">Cancel</Text>
+              <Text className=" text-blue-500">Cancel</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="(modal)/reply/[id]"
+        options={{
+          presentation: "modal",
+
+          title: "Reply",
+          headerLeft: () => (
+            <TouchableOpacity className="ml-2" onPress={() => router.dismiss()}>
+              <Text className="text-blue-500">Cancel</Text>
             </TouchableOpacity>
           ),
         }}

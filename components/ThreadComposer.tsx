@@ -16,6 +16,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
   isPreview?: boolean;
@@ -27,6 +28,7 @@ const ThreadComposer = ({ isPreview, isReply, threadId }: Props) => {
   const router = useRouter();
   const [content, setContent] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
+  const { bottom } = useSafeAreaInsets();
   const [mediaFiles, setMediaFiles] = useState<ImagePicker.ImagePickerAsset[]>(
     []
   );
@@ -112,114 +114,121 @@ const ThreadComposer = ({ isPreview, isReply, threadId }: Props) => {
     ]);
   };
   return (
-    <TouchableOpacity
-      onPress={() => {
-        if (isPreview) {
-          router.push("/(auth)/(modal)/create");
-        }
-      }}
-      disabled={!isPreview}
-      style={
-        isPreview && {
-          top: 0,
-          left: 0,
-          right: 0,
-          flex: 1,
-          zIndex: 1000,
-          pointerEvents: "box-only",
-        }
-      }
-    >
-      <Stack.Screen
-        options={{
-          headerLeft: () => (
-            <TouchableOpacity onPress={handleCancel}>
-              <Text className="text-blue-500">Cancel</Text>
-            </TouchableOpacity>
-          ),
+    <View className="flex-1 justify-between ">
+      <TouchableOpacity
+        onPress={() => {
+          if (isPreview) {
+            router.push("/(auth)/(modal)/create");
+          }
         }}
-      />
-      <View
-        className={`flex-row items-center gap-4 p-4 border-b border-gray-300 ${!isPreview && "mb-5"}`}
+        disabled={!isPreview}
+        style={
+          isPreview && {
+            top: 0,
+            left: 0,
+            right: 0,
+            flex: 1,
+            zIndex: 1000,
+            pointerEvents: "box-only",
+          }
+        }
       >
-        {/*// TODO: Add fallback image url */}
-        <Image
-          source={{ uri: userProfile?.imageUrl ?? "" }}
-          className="w-14 h-14 rounded-full self-start"
+        <Stack.Screen
+          options={{
+            headerLeft: () => (
+              <TouchableOpacity onPress={handleCancel}>
+                <Text className="text-blue-500">Cancel</Text>
+              </TouchableOpacity>
+            ),
+          }}
         />
-        <View className="flex-col flex-1">
-          <Text className="text-lg font-bold">
-            {userProfile?.first_name} {userProfile?.last_name}
-          </Text>
-          <TextInput
-            className="text-base max-h-24"
-            placeholder={isReply ? "Reply to thread" : "What's new?"}
-            value={content}
-            onChangeText={setContent}
-            multiline
-            autoFocus={!isPreview}
-            inputAccessoryViewID={INPUT_ACCESSORY_VIEW_ID}
+        <View
+          className={`flex-row items-center gap-4 p-4 border-b border-gray-300 ${!isPreview && "mb-5"}`}
+        >
+          {/*// TODO: Add fallback image url */}
+          <Image
+            source={{ uri: userProfile?.imageUrl ?? "" }}
+            className="w-14 h-14 rounded-full self-start"
           />
-          {mediaFiles?.length > 0 && (
-            <ScrollView horizontal className="pt-8">
-              {mediaFiles.map((item, index) => (
-                <View
-                  key={index}
-                  className="min-h-40 relative aspect-[12/16] mr-4"
-                >
-                  <Image
-                    source={{ uri: item.uri }}
-                    className=" w-full h-full object-cover rounded-lg"
-                  />
-                  <TouchableOpacity
-                    className="absolute top-0 right-0  m-1 bg-black/40 rounded-md"
-                    onPress={() =>
-                      setMediaFiles(mediaFiles?.filter((_, i) => i !== index))
-                    }
-                  >
-                    <Ionicons
-                      name="close"
-                      size={15}
-                      color={"#fff"}
-                      className="p-1"
-                    />
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </ScrollView>
-          )}
-
-          {/* // TODO: Make all these icons working */}
-          <View className="mt-4 flex-row gap-2">
-            <TouchableOpacity onPress={() => selectImage("library")}>
-              <Ionicons name="image-outline" size={25} color={"#1119"} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => selectImage("camera")}>
-              <Ionicons name="camera-outline" size={25} color={"#1119"} />
-            </TouchableOpacity>
-            <TouchableOpacity className="flex items-center justify-center">
-              <Text
-                style={{ color: "#1119" }}
-                className="flex items-center justify-center text-center"
-              >
-                gif
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        {!isPreview && (
-          <TouchableOpacity className="self-start" onPress={removeThread}>
-            <Ionicons
-              name="close-outline"
-              className=""
-              color={"#11195"}
-              size={25}
+          <View className="flex-col flex-1">
+            <Text className="text-lg font-bold">
+              {userProfile?.first_name} {userProfile?.last_name}
+            </Text>
+            <TextInput
+              className="text-base max-h-24"
+              placeholder={isReply ? "Reply to thread" : "What's new?"}
+              value={content}
+              onChangeText={setContent}
+              multiline
+              autoFocus={!isPreview}
+              inputAccessoryViewID={INPUT_ACCESSORY_VIEW_ID}
             />
-          </TouchableOpacity>
-        )}
-      </View>
-      <InputAccessoryView nativeID={INPUT_ACCESSORY_VIEW_ID}>
-        <View className="flex-row items-center p-4 gap-4 pl-16">
+            {mediaFiles?.length > 0 && (
+              <ScrollView horizontal className="pt-8">
+                {mediaFiles.map((item, index) => (
+                  <View
+                    key={index}
+                    className="min-h-40 relative aspect-[12/16] mr-4"
+                  >
+                    <Image
+                      source={{ uri: item.uri }}
+                      className=" w-full h-full object-cover rounded-lg"
+                    />
+                    <TouchableOpacity
+                      className="absolute top-0 right-0  m-1 bg-black/40 rounded-md"
+                      onPress={() =>
+                        setMediaFiles(mediaFiles?.filter((_, i) => i !== index))
+                      }
+                    >
+                      <Ionicons
+                        name="close"
+                        size={15}
+                        color={"#fff"}
+                        className="p-1"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+
+            {/* // TODO: Make all these icons working */}
+            <View className="mt-4 flex-row gap-2">
+              <TouchableOpacity onPress={() => selectImage("library")}>
+                <Ionicons name="image-outline" size={25} color={"#1119"} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => selectImage("camera")}>
+                <Ionicons name="camera-outline" size={25} color={"#1119"} />
+              </TouchableOpacity>
+              <TouchableOpacity className="flex items-center justify-center">
+                <Text
+                  style={{ color: "#1119" }}
+                  className="flex items-center justify-center text-center"
+                >
+                  gif
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          {!isPreview && (
+            <TouchableOpacity className="self-start" onPress={removeThread}>
+              <Ionicons
+                name="close-outline"
+                className=""
+                color={"#11195"}
+                size={25}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+      </TouchableOpacity>
+      {/* <InputAccessoryView nativeID={INPUT_ACCESSORY_VIEW_ID}> */}
+
+      {!isPreview && (
+        <View
+          style={{ paddingBottom: bottom }}
+          className="flex-row items-center p-4 gap-4 pl-16 bg-white"
+        >
           <Text className="flex-1 text-gray-500 text-lg">
             {isReply
               ? "Everyone can reply or quote"
@@ -232,8 +241,10 @@ const ThreadComposer = ({ isPreview, isReply, threadId }: Props) => {
             <Text className="text-white font-bold">Post</Text>
           </TouchableOpacity>
         </View>
-      </InputAccessoryView>
-    </TouchableOpacity>
+      )}
+
+      {/* </InputAccessoryView> */}
+    </View>
   );
 };
 

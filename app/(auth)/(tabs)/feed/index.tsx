@@ -1,4 +1,4 @@
-import { View, RefreshControl, Image } from "react-native";
+import { View, RefreshControl, Image, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ThreadComposer from "@/components/ThreadComposer";
 import Thread from "@/components/Thread";
 import { Doc } from "@/convex/_generated/dataModel";
-import { useNavigation } from "expo-router";
+import { Link, useNavigation } from "expo-router";
 import Animated, {
   runOnJS,
   useAnimatedScrollHandler,
@@ -25,7 +25,7 @@ const Feed = (props: Props) => {
   const [refreshKey, setRefreshKey] = useState(0); // New state to trigger refresh
 
   const { bottom } = useSafeAreaInsets();
-  const { results, status, loadMore } = usePaginatedQuery(
+  const { results, status, loadMore, isLoading } = usePaginatedQuery(
     api.messages.getThreads,
     { refreshKey },
     { initialNumItems: 5 }
@@ -38,13 +38,14 @@ const Feed = (props: Props) => {
   const isFocused = useIsFocused();
 
   const updateTabBar = () => {
+    if (!isFocused) return;
     let newMarginBottom = 0;
     if (scrollOffset.value >= 0 && scrollOffset.value <= tabBarHeight) {
       newMarginBottom = -scrollOffset.value;
     } else if (scrollOffset.value > tabBarHeight) {
       newMarginBottom = -tabBarHeight;
     }
-    navigation.setOptions({
+    navigation?.getParent()?.setOptions({
       tabBarStyle: {
         marginBottom: newMarginBottom,
       },
@@ -64,7 +65,6 @@ const Feed = (props: Props) => {
   };
   const onRefresh = () => {
     setRefreshing(true);
-    setRefreshKey((prev) => prev + 1);
     setTimeout(() => {
       setRefreshing(false);
     }, 500);
@@ -103,12 +103,29 @@ const Feed = (props: Props) => {
         data={results}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <Thread
-            thread={item as Doc<"messages"> & { creator: Doc<"users"> }}
-          />
+          <Link href={`/(auth)/(tabs)/feed/${item._id}`} asChild>
+            <TouchableOpacity>
+              <Thread
+                thread={item as Doc<"messages"> & { creator: Doc<"users"> }}
+              />
+            </TouchableOpacity>
+          </Link>
         )}
         keyExtractor={(item) => item._id}
         onEndReached={onLoadMore}
+        ListFooterComponent={
+          status === "LoadingMore" ? (
+            <Animated.View className="w-full items-center justify-center">
+              <View className="">
+                <Ionicons
+                  name="sync-outline"
+                  size={30}
+                  className="animate-spin"
+                />
+              </View>
+            </Animated.View>
+          ) : null
+        }
         refreshControl={
           <RefreshControl
             enabled

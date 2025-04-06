@@ -13,18 +13,25 @@ export const addThreadMessage = mutation({
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
+    console.log(args);
 
-    return ctx.db.insert("messages", {
+    const message = await ctx.db.insert("messages", {
       ...args,
       commentCount: 0,
       likeCount: 0,
       retweetCount: 0,
       userId: user!._id,
     });
+    console.log("🚀 ~ handler: ~ message:", message);
 
     if (args.threadId) {
-      //TODO
+      const originalThread = await ctx.db.get(args.threadId);
+      await ctx.db.patch(args.threadId, {
+        commentCount: (originalThread?.commentCount ?? 0) + 1,
+      });
     }
+
+    return message;
   },
 });
 
@@ -61,6 +68,43 @@ export const getThreads = query({
       ...threads,
       page: messageWithCreatorAndImages,
     };
+  },
+});
+export const getThreadById = query({
+  args: {
+    messageId: v.id("messages"),
+  },
+  handler: async (ctx, args) => {
+    const thread = await ctx.db.get(args.messageId);
+    if (!thread) return null;
+
+    const creator = await getMessageCreator(ctx, thread.userId);
+    const mediaFiles = await getMediaUrls(ctx, thread.mediaFiles);
+
+    return { ...thread, creator, mediaFiles };
+  },
+});
+
+//TODO: Add pagination in comments
+export const getThreadComments = query({
+  args: {
+    messageId: v.id("messages"),
+  },
+  handler: async (ctx, args) => {
+    const comments = await ctx.db
+      .query("messages")
+      .filter((q) => q.eq(q.field("threadId"), args.messageId))
+      .order("desc")
+      .collect();
+
+    const messageWithCreator = Promise.all(
+      comments.map(async (comment) => {
+        const creator = await getMessageCreator(ctx, comment.userId);
+        const mediaFiles = await getMediaUrls(ctx, comment.mediaFiles);
+        return { ...comment, creator, mediaFiles };
+      })
+    );
+    return messageWithCreator;
   },
 });
 

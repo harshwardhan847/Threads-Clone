@@ -18,17 +18,31 @@ const Thread = ({ thread }: Props) => {
 
   return (
     <View className="p-4 flex-row">
-      <Image
-        source={{ uri: thread.creator.imageUrl }}
-        className="w-14 h-14 rounded-full mr-5"
-      />
+      <Link
+        href={`/(auth)/(tabs)/feed/profile/${thread?.creator?._id}`}
+        asChild
+      >
+        <TouchableOpacity>
+          <Image
+            source={{ uri: thread.creator.imageUrl }}
+            className="w-14 h-14 rounded-full mr-5"
+          />
+        </TouchableOpacity>
+      </Link>
       <View className="flex-1 ">
         {/* Header */}
         <View className="justify-between flex-row items-start">
           <View className="flex-row gap-2 items-center justify-start">
-            <Text className="font-bold text-lg flex items-center justify-center">
-              {thread.creator.first_name} {thread.creator?.last_name}
-            </Text>
+            <Link
+              href={`/(auth)/(tabs)/feed/profile/${thread?.creator?._id}`}
+              asChild
+            >
+              <TouchableOpacity>
+                <Text className="font-bold text-lg flex items-center justify-center">
+                  {thread.creator.first_name} {thread.creator?.last_name}
+                </Text>
+              </TouchableOpacity>
+            </Link>
             <Text className="text-sm flex items-center justify-center text-gray-600">
               {new Date(thread._creationTime).toLocaleDateString()}
             </Text>

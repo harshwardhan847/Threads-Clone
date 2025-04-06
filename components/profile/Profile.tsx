@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@clerk/clerk-expo";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import UserProfile from "./UserProfile";
 import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -53,9 +53,13 @@ const Profile = ({ userId = undefined, showBackButton = false }: Props) => {
         data={results}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <Thread
-            thread={item as Doc<"messages"> & { creator: Doc<"users"> }}
-          />
+          <Link href={`/(auth)/(tabs)/feed/${item._id}`} asChild>
+            <TouchableOpacity>
+              <Thread
+                thread={item as Doc<"messages"> & { creator: Doc<"users"> }}
+              />
+            </TouchableOpacity>
+          </Link>
         )}
         ListEmptyComponent={
           <Text className="text-center text-gray-500 text-lg mt-4">

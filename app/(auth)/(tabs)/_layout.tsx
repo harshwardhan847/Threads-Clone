@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs, useRouter } from "expo-router";
+import { Stack, Tabs, useRouter } from "expo-router";
 import React from "react";
 import { TouchableOpacity, View } from "react-native";
 import * as Haptics from "expo-haptics";
@@ -18,7 +18,7 @@ const Layout = (props: Props) => {
       }}
     >
       <Tabs.Screen
-        name="feed/index"
+        name="feed"
         options={{
           headerShown: false,
           title: "Home",
@@ -33,6 +33,7 @@ const Layout = (props: Props) => {
           },
         }}
       />
+
       <Tabs.Screen
         name="search/index"
         options={{
@@ -89,6 +90,7 @@ const Layout = (props: Props) => {
           },
         }}
       />
+
       <Tabs.Screen
         name="profile"
         options={{
